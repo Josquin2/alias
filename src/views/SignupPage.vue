@@ -4,10 +4,29 @@ import { Api } from '../api/ApiClass'
 import router from '@/router'
 
 async function onLoginClick() {
-  api.post('signup', {
+  const response = await api.post('signup', {
     username: username.value,
     password: password.value,
   })
+
+  if (response && response.status == 200) {
+    localStorage.setItem('user', JSON.stringify(response.data))
+
+    router.push('main-page')
+  } else if (response && response.status == 409) {
+    console.log(response)
+    setError('Аккаунт с таким именем пользователя уже существует!')
+  } else {
+    setError('Произошла неожиданная ошибка')
+  }
+}
+
+function setError(message: string) {
+  error.value = message
+
+  setTimeout(() => {
+    error.value = ''
+  }, 1500)
 }
 
 function onChangeClick() {
@@ -19,6 +38,8 @@ const api = new Api()
 const username: Ref<string> = ref('')
 const password: Ref<string> = ref('')
 const confirmPassword: Ref<string> = ref('')
+
+const error: Ref<string> = ref('')
 </script>
 
 <template>
@@ -32,7 +53,7 @@ const confirmPassword: Ref<string> = ref('')
     </div>
 
     <div class="enter-block">
-      <p class="enter__error"></p>
+      <p class="enter__error">{{ error }}</p>
 
       <button class="enter__button" @click="onLoginClick()">Зарегестрироваться</button>
 

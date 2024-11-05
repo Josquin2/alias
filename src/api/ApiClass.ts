@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { type AxiosResponse } from 'axios'
 
 export class Api {
   protected readonly url: string
@@ -16,9 +16,9 @@ export class Api {
           'Content-Type': 'application/json',
         },
       })
-      return response.data
-    } catch (error) {
-      throw new Error(`Error making ${method.toUpperCase()} request: ${(error as Error).message}`)
+      return { data: response.data, status: response.status }
+    } catch (error: any) {
+      return { data: 'error', status: error.status }
     }
   }
 

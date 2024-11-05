@@ -4,12 +4,28 @@ import { Api } from '../api/ApiClass'
 import router from '@/router'
 
 async function onLoginClick() {
-  api.post('login', {
+  const response = await api.post('login', {
     username: username.value,
-    password: username.password,
+    password: password.value,
   })
 
-  //   const response = await api.getObjects('users')
+  if (response && response.status == 200) {
+    localStorage.setItem('user', JSON.stringify(response.data))
+
+    router.push('main-page')
+  } else if (response && response.status == 204) {
+    setError('Неверное имя пользователя или пароль')
+  } else {
+    setError('Произошла неожиданная ошибка')
+  }
+}
+
+function setError(message: string) {
+  error.value = message
+
+  setTimeout(() => {
+    error.value = ''
+  }, 1500)
 }
 
 function onChangeClick() {
@@ -20,6 +36,8 @@ const api = new Api()
 
 const username: Ref<string> = ref('')
 const password: Ref<string> = ref('')
+
+const error: Ref<string> = ref('')
 </script>
 
 <template>
@@ -32,7 +50,7 @@ const password: Ref<string> = ref('')
     </div>
 
     <div class="enter-block">
-      <p class="enter__error"></p>
+      <p class="enter__error">{{ error }}</p>
 
       <button class="enter__button" @click="onLoginClick()">Войти</button>
 
@@ -80,6 +98,12 @@ const password: Ref<string> = ref('')
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.enter-block .enter__error {
+  height: 1.3rem;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
 }
 
 .enter-block .enter__button {
