@@ -2,14 +2,16 @@
 import { type Ref, ref } from 'vue'
 import { Api } from '../api/ApiClass'
 import router from '@/router'
+import { sha256 } from 'js-sha256'
 
 async function onLoginClick() {
   const response = await api.post('signup', {
     username: username.value,
-    password: password.value,
+    password: sha256(password.value),
   })
 
   if (response && response.status == 200) {
+    console.log(response)
     localStorage.setItem('user', JSON.stringify(response.data))
 
     router.push('main-page')
